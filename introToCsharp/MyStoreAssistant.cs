@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace introToCsharp
 {
-    class Program
+    class MyStoreAssistant
     {
         static void Main(string[] args)
         {
