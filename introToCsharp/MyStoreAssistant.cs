@@ -5,19 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace introToCsharp
+namespace MyStoreAssistant
 {
     class MyStoreAssistant
     {
         static void Main(string[] args)
         {
-            Item item = new Item(); //initialize object
+            
             Help help = new Help(); //initialize object
             ConsoleDesign();
-            //Console.WriteLine("Enter: 'New Item' to insert new item into the store. Otherwise Enter 'help' for the various commands");
-            //string UserInput = Console.ReadLine();
-            IDictionary<string,List<object>> HELPS = help.HelpCommands();
-            Console.WriteLine(HELPS.ContainsKey("NEW ITEM"));
+            help.HelpInit();
+            
+            
+            //var HelpsKeys = HelpText.Substring(FirstIndex, HelpText.Length - FirstIndex).Trim();
+            //Console.WriteLine(FirstIndex);
+            //if (HELPS.ContainsKey(HelpsKeys)) 
+
             Console.ReadLine();
         }
 
@@ -37,64 +40,81 @@ namespace introToCsharp
     {
         public string Name { get; set; }
         public string ComponentDescription { get; set; }
-        private object ComponentAction { get; set; }
+        public Item ComponentAction { get; set; }
+        
         
         public Help()
         {
             string Name;
-            string ComponentDescription;
-            object ComponentAction;
+            //string ComponentDescription;
+            //ComponentAction;
         }
 
         //Constructors with parameters and default values.
         public Help(string name)
         {
             this.Name = name;
-            this.ComponentDescription = "This contains the list of commands for the program";
-            this.ComponentAction = Describe();
-
+            this.ComponentAction = new Item();
+            //this.ComponentDescription = "This contains the list of commands for the program";
         }
         
-        //Help Dictionary: The elements in the dictionary contains a key; the first part  and a list the contains two parts.
-        public IDictionary<string,List<object>> HelpCommands()
+        
+        public IDictionary<string,Help> HelpInformation()
         {
-            IDictionary<string,List<object>> HelpCommands = new Dictionary<string,List<object>>();
-            HelpCommands["NEW ITEM"] = new List<object> 
-            { 
-                new Help { ComponentDescription = "This command allows you to add New Items into the collections"},
-                //new Help().ItemStore(InputItem())
-            };
-            HelpCommands["COUNT ITEM"] = new List<object> 
+            IDictionary<string,Help> HelpInformations = new Dictionary<string,Help>();
+            HelpInformations.Add("NEW ITEM",new Help { ComponentDescription = "NEW ITEM: This command allows you to add New Items into the collections" });
+            HelpInformations.Add("COUNT ITEM", new Help { ComponentDescription = "COUNT ITEM: Use this command to know the number of items in your store" });
+            
+            return HelpInformations; //return the collection of helps with keys and values.
+        }
+
+       
+        //public Array[] HelpAction()
+        //{
+        //    List<IDictionary> ActionLists = new List<IDictionary>();
+        //    IDictionary<string,Help> HelpActions = new Dictionary<string, Help>();
+        //    HelpActions.Add("NEW ITEM", new Help{ComponentAction = (Item)ItemStore(InputItem())});
+        //    ActionLists.Add(HelpActions);
+
+        //    return HelpActions; //return the collection of helps with keys and values.
+        //}
+
+        public void HelpInit()
+        {
+            Help help = new Help(); //initialize object
+            Console.WriteLine("Enter: 'New Item' to insert new item into the store. Otherwise Enter 'help' for the various commands");
+            string UserInput = Console.ReadLine();
+            IDictionary<string, Help> HELPSINFORMATION = help.HelpInformation();
+            //IDictionary<string, Help> HELPSACTION = help.HelpAction();
+            var Capital = UserInput.ToUpper();
+            if (Capital.Contains("HELP") && Capital.LastIndexOf("HELP") == 0)
             {
-                new Help { ComponentDescription = "Use this command to know the number of items in your store"},
-            };
-            return HelpCommands; //return the collection of helps with keys and values.
+                string HelpsKeys = Capital.Substring("HELP".Length).Trim();
+                if (HELPSINFORMATION.ContainsKey(HelpsKeys)) Console.WriteLine(HELPSINFORMATION[HelpsKeys].ComponentDescription);
+                else
+                {
+                    foreach(var helpsinfo in HELPSINFORMATION.Keys) Console.WriteLine(HELPSINFORMATION[helpsinfo].ComponentDescription);
+                }
+            }
+            //else foreach (var key in HELPSACTION.Keys)
+            //{
+            //    if (Capital.Contains(key) && Capital.LastIndexOf(key) == 0)
+            //    {
+            //        Console.WriteLine(HELPSACTION[key].ComponentAction);
+            //    }
+            //}
         }
-
-        //The method searches the keys of the dictionary and find a match for the argument.
-        //If a match of the argument is found, the method should retrun the action of the help specified.
-        public void HelpAction()
-        {
-            if (HelpCommands().ContainsKey(Name)) Console.Write(HelpCommands()[Name][1]);
-            Console.Write("The command is not recognised");
-        }
-
-        //The method searches the keys of the dictionary and finds a match for the argument.
-        //If a macth of the argument is found, the method returns the description of the specificed help.
-        public object Describe()
-        {
-            if (HelpCommands().ContainsKey(Name)) return HelpCommands()[Name][0];
-            return ("The command is not recognised");
-        }
-        
-        
-
     }
    
+
     public class Item
     {
         public string Name { get; set; }
         public double Amount { get; set; }
+        public static int NumberOfItems { get; set; }
+        public Item StoreItem { get;set; }
+        
+        
 
         // default constructor
         public Item()
@@ -108,19 +128,34 @@ namespace introToCsharp
         {
             this.Amount = amount;
             this.Name = name;
+            //this.StoreItem = ItemStore();
         }
 
-        public Item InputItem()
+        public Item InputItem() //Form for inputing new item.
         {
             Console.Write("Enter Store Item:");
             string item = Console.ReadLine();
             Console.Write("Enter Item Amount:");
             double Amount = double.Parse(Console.ReadLine());
             Item StoreItem = new Item(item, Amount);
-            return StoreItem;
-        } 
+            Console.Clear();
+            Console.WriteLine("You have entered: \n Item Name: {0} \n Item Amount: {1}", StoreItem.Name, StoreItem.Amount);
+            Console.WriteLine("Enter Yes to Confirm or No to Cancel");
+            string confirmation = Console.ReadLine();
+            Item AnItem;
+            if (confirmation.ToUpper() == "YES")
+            {
+                AnItem = StoreItem;
+            }
+            else
+            {
+                AnItem = InputItem();
+            }
+           
+             return AnItem;
+        }
 
-        public IDictionary<string, double> ItemStore(Item StoreItem)
+        public IDictionary<string, double> ItemStore(Item StoreItem) //Store the new item in a dictionary, with name as key and anount as value.
         {
             IDictionary<string, double> Splitted = new Dictionary<string, double>();
             Splitted.Add(StoreItem.Name,StoreItem.Amount);
